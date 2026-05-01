@@ -1,121 +1,146 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { generateClinicalCase } from './gemini'
 import './App.css'
 
+const SPECIALTIES = [
+  'Cardiology',
+  'Pulmonology',
+  'Neurology',
+  'Gastroenterology',
+  'Endocrinology',
+  'Nephrology',
+  'Hematology',
+  'Infectious Disease',
+  'Rheumatology',
+  'Emergency Medicine',
+]
+
+const CASE_SECTIONS = [
+  { key: 'chief_complaint', label: 'Chief Complaint' },
+  { key: 'history_of_present_illness', label: 'History of Present Illness' },
+  { key: 'relevant_history', label: 'Relevant History' },
+  { key: 'review_of_systems', label: 'Review of Systems' },
+  { key: 'vital_signs', label: 'Vital Signs' },
+  { key: 'physical_examination', label: 'Physical Examination' },
+  { key: 'diagnostic_workup', label: 'Diagnostic Workup' },
+  { key: 'teaching_points', label: 'Teaching Points' },
+]
+
+function CaseForm({ specialty, setSpecialty, difficulty, setDifficulty, focusArea, setFocusArea, onGenerate, isLoading }) {
+  return (
+    <div className="form-card">
+      <div className="form-row">
+        <label className="form-field">
+          <span className="field-label">Specialty</span>
+          <select value={specialty} onChange={e => setSpecialty(e.target.value)}>
+            {SPECIALTIES.map(s => <option key={s}>{s}</option>)}
+          </select>
+        </label>
+        <label className="form-field">
+          <span className="field-label">Difficulty</span>
+          <select value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+            <option>Easy</option>
+            <option>Medium</option>
+            <option>Hard</option>
+          </select>
+        </label>
+      </div>
+      <label className="form-field form-field--full">
+        <span className="field-label">
+          Focus Area <span className="field-optional">(optional)</span>
+        </span>
+        <input
+          type="text"
+          value={focusArea}
+          onChange={e => setFocusArea(e.target.value)}
+          placeholder="e.g. EKG findings, drug interactions, physical exam…"
+        />
+      </label>
+      <button className="generate-btn" onClick={onGenerate} disabled={isLoading}>
+        {isLoading ? <><span className="spinner" />Generating…</> : 'Generate Case'}
+      </button>
+    </div>
+  )
+}
+
+function DiagnosisReveal({ diagnosis }) {
+  const [revealed, setRevealed] = useState(false)
+  return (
+    <div className="case-section diagnosis-section">
+      <span className="section-label">
+        {revealed ? 'Diagnosis' : 'Diagnosis — click to reveal'}
+      </span>
+      <p
+        className={`diagnosis-text${revealed ? ' diagnosis-text--revealed' : ''}`}
+        onClick={() => !revealed && setRevealed(true)}
+      >
+        {diagnosis}
+      </p>
+    </div>
+  )
+}
+
+function CaseDisplay({ clinicalCase }) {
+  return (
+    <div className="case-display">
+      {CASE_SECTIONS.map(({ key, label }) => (
+        <div key={key} className="case-section">
+          <span className="section-label">{label}</span>
+         <p className="section-content">
+          {typeof clinicalCase[key] === 'string' 
+             ? clinicalCase[key] 
+           : JSON.stringify(clinicalCase[key], null, 2)}
+        </p>
+        </div>
+      ))}
+      <DiagnosisReveal diagnosis={clinicalCase.diagnosis} />
+    </div>
+  )
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [specialty, setSpecialty] = useState('Cardiology')
+  const [difficulty, setDifficulty] = useState('Medium')
+  const [focusArea, setFocusArea] = useState('')
+  const [clinicalCase, setClinicalCase] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function handleGenerate() {
+    setIsLoading(true)
+    setError(null)
+    setClinicalCase(null)
+    try {
+      const result = await generateClinicalCase({ specialty, difficulty, focusArea })
+      setClinicalCase(result)
+    } catch (err) {
+      setError(err.message || 'Failed to generate case. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <div className="app">
+      <header className="app-header">
+        <h1>Clinical Case Generator</h1>
+        <p className="app-subtitle">Generate realistic clinical cases for diagnostic practice.</p>
+      </header>
+      <main className="app-main">
+        <CaseForm
+          specialty={specialty}
+          setSpecialty={setSpecialty}
+          difficulty={difficulty}
+          setDifficulty={setDifficulty}
+          focusArea={focusArea}
+          setFocusArea={setFocusArea}
+          onGenerate={handleGenerate}
+          isLoading={isLoading}
+        />
+        {error && <div className="error-card">{error}</div>}
+        {clinicalCase && <CaseDisplay clinicalCase={clinicalCase} />}
+      </main>
+    </div>
   )
 }
 
