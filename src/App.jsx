@@ -23,7 +23,6 @@ const CASE_SECTIONS = [
   { key: 'vital_signs', label: 'Vital Signs' },
   { key: 'physical_examination', label: 'Physical Examination' },
   { key: 'diagnostic_workup', label: 'Diagnostic Workup' },
-  { key: 'teaching_points', label: 'Teaching Points' },
 ]
 
 function CaseForm({ specialty, setSpecialty, difficulty, setDifficulty, focusArea, setFocusArea, onGenerate, isLoading }) {
@@ -63,8 +62,7 @@ function CaseForm({ specialty, setSpecialty, difficulty, setDifficulty, focusAre
   )
 }
 
-function DiagnosisReveal({ diagnosis }) {
-  const [revealed, setRevealed] = useState(false)
+function DiagnosisReveal({ diagnosis, revealed, onReveal }) {
   return (
     <div className="case-section diagnosis-section">
       <span className="section-label">
@@ -72,7 +70,7 @@ function DiagnosisReveal({ diagnosis }) {
       </span>
       <p
         className={`diagnosis-text${revealed ? ' diagnosis-text--revealed' : ''}`}
-        onClick={() => !revealed && setRevealed(true)}
+        onClick={() => !revealed && onReveal()}
       >
         {diagnosis}
       </p>
@@ -80,20 +78,30 @@ function DiagnosisReveal({ diagnosis }) {
   )
 }
 
-function CaseDisplay({ clinicalCase }) {
+function CaseDisplay({ clinicalCase, revealed, onReveal }) {
   return (
     <div className="case-display">
       {CASE_SECTIONS.map(({ key, label }) => (
         <div key={key} className="case-section">
           <span className="section-label">{label}</span>
          <p className="section-content">
-          {typeof clinicalCase[key] === 'string' 
-             ? clinicalCase[key] 
+          {typeof clinicalCase[key] === 'string'
+             ? clinicalCase[key]
            : JSON.stringify(clinicalCase[key], null, 2)}
         </p>
         </div>
       ))}
-      <DiagnosisReveal diagnosis={clinicalCase.diagnosis} />
+      <DiagnosisReveal diagnosis={clinicalCase.diagnosis} revealed={revealed} onReveal={onReveal} />
+      {revealed && (
+        <div className="case-section">
+          <span className="section-label">Teaching Points</span>
+          <p className="section-content">
+            {typeof clinicalCase.teaching_points === 'string'
+              ? clinicalCase.teaching_points
+              : JSON.stringify(clinicalCase.teaching_points, null, 2)}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -105,11 +113,13 @@ function App() {
   const [clinicalCase, setClinicalCase] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [revealed, setRevealed] = useState(false)
 
   async function handleGenerate() {
     setIsLoading(true)
     setError(null)
     setClinicalCase(null)
+    setRevealed(false)
     try {
       const result = await generateClinicalCase({ specialty, difficulty, focusArea })
       setClinicalCase(result)
@@ -138,7 +148,7 @@ function App() {
           isLoading={isLoading}
         />
         {error && <div className="error-card">{error}</div>}
-        {clinicalCase && <CaseDisplay clinicalCase={clinicalCase} />}
+        {clinicalCase && <CaseDisplay clinicalCase={clinicalCase} revealed={revealed} onReveal={() => setRevealed(true)} />}
       </main>
     </div>
   )
