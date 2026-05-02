@@ -198,6 +198,10 @@ input[type='text']:focus {
   white-space: pre-wrap;
 }
 
+.case-section--chief-complaint .section-content {
+  font-weight: 700;
+}
+
 /* ── Diagnosis reveal ────────────────────────────────── */
 .diagnosis-section {
   border-color: var(--accent-border);
@@ -238,4 +242,12 @@ input[type='text']:focus {
   margin-top: 3px;
   list-style: circle;
   padding-left: 16px;
+}
+
+.section-content strong,
+.section-list strong,
+.case-section strong {
+  color: var(--text-h);
+  font-weight: 600;
+
 }

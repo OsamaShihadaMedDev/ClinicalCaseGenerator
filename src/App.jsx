@@ -1,6 +1,15 @@
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { generateClinicalCase } from './gemini'
 import './App.css'
+
+function MD({ children }) {
+  return (
+    <ReactMarkdown components={{ p: ({ children }) => <>{children}</> }}>
+      {String(children)}
+    </ReactMarkdown>
+  )
+}
 
 const SPECIALTIES = [
   'Cardiology',
@@ -86,7 +95,7 @@ function renderObjectList(obj) {
           <strong>{k}</strong>:{' '}
           {v !== null && typeof v === 'object' && !Array.isArray(v)
             ? renderObjectList(v)
-            : typeof v === 'object' ? JSON.stringify(v) : v}
+            : typeof v === 'object' ? JSON.stringify(v) : <MD>{v}</MD>}
         </li>
       ))}
     </ul>
@@ -97,7 +106,7 @@ function renderSectionContent(key, value) {
   if (key === 'teaching_points' && Array.isArray(value)) {
     return (
       <ul className="section-list">
-        {value.map((item, i) => <li key={i}>{item}</li>)}
+        {value.map((item, i) => <li key={i}><MD>{item}</MD></li>)}
       </ul>
     )
   }
@@ -106,7 +115,7 @@ function renderSectionContent(key, value) {
   }
   return (
     <p className="section-content">
-      {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+      {typeof value === 'string' ? <MD>{value}</MD> : JSON.stringify(value, null, 2)}
     </p>
   )
 }
@@ -115,7 +124,7 @@ function CaseDisplay({ clinicalCase, revealed, onReveal }) {
   return (
     <div className="case-display">
       {CASE_SECTIONS.map(({ key, label }) => (
-        <div key={key} className="case-section">
+        <div key={key} className={`case-section${key === 'chief_complaint' ? ' case-section--chief-complaint' : ''}`}>
           <span className="section-label">{label}</span>
           {renderSectionContent(key, clinicalCase[key])}
         </div>

@@ -42,6 +42,23 @@ For physical_examination: use an object keyed by body system. Values may be stri
 For diagnostic_workup: use an object keyed by test or study name (CBC, BMP, LFTs, ECG, Chest X-Ray, etc.) with string result values.
 For teaching_points: use an array of strings, one per teaching point. Do not use a numbered string.
 
+Wrap clinically pivotal terms in markdown bold (**term**). Bold ALL of the following when they appear:
+- Every symptom relevant to the differential (e.g., polydipsia, polyuria, weight loss, blurred vision, dyspnea, chest pain, headache, tingling)
+- Every key sign on physical exam (e.g., tachycardia, tachypnea, hypotension, edema, pallor, jaundice, focal weakness)
+- Every abnormal vital or lab value (and its qualifier like 'elevated' or 'low')
+- Every relevant past medical history item (e.g., diabetes, hypertension, GDM, prior MI)
+- Every relevant medication (especially ones tied to the differential)
+- Every pertinent positive AND pertinent negative the student should notice
+- Pivotal diagnostic findings (e.g., 'opaque yellow synovial fluid,' 'ST elevation,' 'positive nitrites')
+
+Do NOT bold:
+- Connecting prose, articles, prepositions, common verbs
+- Generic descriptive language ('appears comfortable,' 'no acute distress')
+- Demographic info already in the chief complaint (age, sex)
+- The diagnosis itself in the diagnosis field
+
+Aim for roughly 4-8 bolded terms per paragraph in HPI and Relevant History. Be generous — a med student should be able to scan the case and pick out every clinically meaningful finding from the bolded terms alone.
+
 Make the case clinically accurate and internally consistent. Do not mention or hint at the diagnosis anywhere except the "diagnosis" field.`
 
   const result = await model.generateContent(prompt)

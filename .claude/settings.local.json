@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Read(//c/Users/OsamaShihada/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/cli/assets/**)",
+      "Bash(python scripts/search.py \"medical educational SaaS clinical case study tool glassmorphism aurora dark mode clean calm trustworthy modern\" --design-system -f markdown -p \"Clinical Case Generator\")",
+      "Bash(python scripts/search.py \"glassmorphism aurora dark mode\" --domain style -n 3)",
+      "Bash(python scripts/search.py \"healthcare medical dark calm trustworthy\" --domain color -n 3)"
     ]
   }
 }
