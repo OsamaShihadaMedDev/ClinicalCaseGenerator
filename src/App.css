@@ -107,6 +107,13 @@ input[type='text']:focus {
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
+select option,
+select optgroup {
+  background-color: #0a1628;
+  color: #e2e8f0;
+  padding: 8px 12px;
+}
+
 /* ── Generate button ─────────────────────────────────── */
 .generate-btn {
   align-self: flex-start;

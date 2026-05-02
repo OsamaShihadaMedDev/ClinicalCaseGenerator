@@ -22,6 +22,9 @@ const SPECIALTIES = [
   'Infectious Disease',
   'Rheumatology',
   'Emergency Medicine',
+  'Obstetrics & Gynecology',
+  'Surgery',
+  'Pediatrics',
 ]
 
 const CASE_SECTIONS = [
