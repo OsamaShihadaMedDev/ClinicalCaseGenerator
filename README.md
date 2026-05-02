@@ -42,7 +42,7 @@ A few choices worth highlighting, because they're where the real thinking went:
 - **The model can hallucinate diagnoses.** Gemini occasionally produces clinically inconsistent diagnoses or invents non-existent entities (e.g. conflating two real conditions into a fake one). A clinical-validation layer is the next planned addition — likely a self-check step or a validated diagnosis list per specialty.
 - **The Gemini API key is exposed in the client bundle.** This is a known limitation of `VITE_*` env vars in client-side Vite apps. Acceptable for a portfolio demo, not for production. A backend proxy is the proper fix when this becomes a real product.
 - **No mobile responsive testing yet.** Probably breaks at narrow widths.
-- **No "generate new case" button.** You currently have to refresh the page.
+- **No "generate new case" button.** You currently have to reclick the button.
 
 ## Running locally
 
