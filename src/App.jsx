@@ -169,11 +169,15 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>Clinical Case Generator</h1>
-        <p className="app-subtitle">Generate realistic clinical cases for diagnostic practice.</p>
-      </header>
       <main className="app-main">
+        <header className="hero-card">
+          <span className="hero-eyebrow">CLINICAL EDUCATION</span>
+          <h1 className="hero-title"><span className="hero-title-accent">Clinical</span> Case Generator</h1>
+          <p className="hero-subtitle">AI-generated clinical cases for diagnostic reasoning practice. Built for medical students.</p>
+          <svg className="hero-ecg-accent" viewBox="0 0 800 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M0,20 L120,20 L130,18 L140,22 L150,5 L160,35 L170,15 L180,22 L200,20 L320,20 L330,18 L340,22 L350,5 L360,35 L370,15 L380,22 L400,20 L520,20 L530,18 L540,22 L550,5 L560,35 L570,15 L580,22 L600,20 L800,20" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </header>
         <CaseForm
           specialty={specialty}
           setSpecialty={setSpecialty}
