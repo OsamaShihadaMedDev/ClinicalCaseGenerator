@@ -53,7 +53,6 @@ npm install
 
 Then:
 
-```bash
 npm run dev
 ```
 
