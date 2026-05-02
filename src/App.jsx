@@ -78,28 +78,53 @@ function DiagnosisReveal({ diagnosis, revealed, onReveal }) {
   )
 }
 
+function renderObjectList(obj) {
+  return (
+    <ul className="section-list">
+      {Object.entries(obj).map(([k, v]) => (
+        <li key={k}>
+          <strong>{k}</strong>:{' '}
+          {v !== null && typeof v === 'object' && !Array.isArray(v)
+            ? renderObjectList(v)
+            : typeof v === 'object' ? JSON.stringify(v) : v}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function renderSectionContent(key, value) {
+  if (key === 'teaching_points' && Array.isArray(value)) {
+    return (
+      <ul className="section-list">
+        {value.map((item, i) => <li key={i}>{item}</li>)}
+      </ul>
+    )
+  }
+  if ((key === 'vital_signs' || key === 'physical_examination' || key === 'diagnostic_workup') && value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    return renderObjectList(value)
+  }
+  return (
+    <p className="section-content">
+      {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+    </p>
+  )
+}
+
 function CaseDisplay({ clinicalCase, revealed, onReveal }) {
   return (
     <div className="case-display">
       {CASE_SECTIONS.map(({ key, label }) => (
         <div key={key} className="case-section">
           <span className="section-label">{label}</span>
-         <p className="section-content">
-          {typeof clinicalCase[key] === 'string'
-             ? clinicalCase[key]
-           : JSON.stringify(clinicalCase[key], null, 2)}
-        </p>
+          {renderSectionContent(key, clinicalCase[key])}
         </div>
       ))}
       <DiagnosisReveal diagnosis={clinicalCase.diagnosis} revealed={revealed} onReveal={onReveal} />
       {revealed && (
         <div className="case-section">
           <span className="section-label">Teaching Points</span>
-          <p className="section-content">
-            {typeof clinicalCase.teaching_points === 'string'
-              ? clinicalCase.teaching_points
-              : JSON.stringify(clinicalCase.teaching_points, null, 2)}
-          </p>
+          {renderSectionContent('teaching_points', clinicalCase.teaching_points)}
         </div>
       )}
     </div>

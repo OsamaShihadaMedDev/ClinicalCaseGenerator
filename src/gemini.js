@@ -30,12 +30,17 @@ Return ONLY a valid JSON object with exactly these keys (no extra keys, no markd
   "history_of_present_illness": "detailed narrative paragraph",
   "relevant_history": "past medical history, medications, allergies, social history, family history",
   "review_of_systems": "pertinent positives and negatives",
-  "vital_signs": "HR, BP, RR, Temp, SpO2, Weight — use realistic values",
-  "physical_examination": "organized by system, include pertinent positives and negatives",
-  "diagnostic_workup": "lab values, imaging findings, ECG, other studies — present raw data only, no interpretation",
-  "teaching_points": "2-4 key learning points about this case and diagnosis",
+  "vital_signs": { "HR": "110 bpm", "BP": "145/92 mmHg", "RR": "20/min", "Temp": "38.2°C", "SpO2": "96%", "Weight": "78 kg" },
+  "physical_examination": { "General": "...", "Cardiovascular": "...", "Neurologic": { "Mental Status": "...", "Cranial Nerves": "...", "Motor": "..." } },
+  "diagnostic_workup": { "CBC": "...", "BMP": "...", "ECG": "..." },
+  "teaching_points": ["first key learning point", "second key learning point", "third key learning point"],
   "diagnosis": "the final diagnosis — this field will be hidden from the student until they choose to reveal it"
 }
+
+For vital_signs: use an object with keys HR, BP, RR, Temp, SpO2, Weight and string values.
+For physical_examination: use an object keyed by body system. Values may be strings or nested objects when a system has natural subsections (e.g. Neurologic with Mental Status, Cranial Nerves, Motor, Sensory, Reflexes, Coordination).
+For diagnostic_workup: use an object keyed by test or study name (CBC, BMP, LFTs, ECG, Chest X-Ray, etc.) with string result values.
+For teaching_points: use an array of strings, one per teaching point. Do not use a numbered string.
 
 Make the case clinically accurate and internally consistent. Do not mention or hint at the diagnosis anywhere except the "diagnosis" field.`
 

@@ -220,3 +220,22 @@ input[type='text']:focus {
   cursor: default;
   user-select: text;
 }
+
+/* ── Section lists (vital signs, exam, workup, teaching points) ── */
+.section-list {
+  color: var(--text);
+  line-height: 1.65;
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.section-list li {
+  margin-bottom: 3px;
+}
+
+.section-list .section-list {
+  margin-top: 3px;
+  list-style: circle;
+  padding-left: 16px;
+}
