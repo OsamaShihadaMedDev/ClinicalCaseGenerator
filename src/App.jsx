@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { generateClinicalCase } from './gemini'
+import { generateClinicalCase } from './api'
 import './App.css'
 
 function MD({ children }) {
@@ -30,11 +30,20 @@ const SPECIALTIES = [
 const CASE_SECTIONS = [
   { key: 'chief_complaint', label: 'Chief Complaint' },
   { key: 'history_of_present_illness', label: 'History of Present Illness' },
-  { key: 'relevant_history', label: 'Relevant History' },
+  { key: 'past_medical_history', label: 'Past Medical History' },
+  { key: 'medications', label: 'Medications' },
+  { key: 'allergies', label: 'Allergies' },
+  { key: 'family_history', label: 'Family History' },
+  { key: 'social_history', label: 'Social History' },
   { key: 'review_of_systems', label: 'Review of Systems' },
   { key: 'vital_signs', label: 'Vital Signs' },
   { key: 'physical_examination', label: 'Physical Examination' },
-  { key: 'diagnostic_workup', label: 'Diagnostic Workup' },
+  { key: 'diagnostic_workup', label: 'Investigations / Diagnostic Workup' },
+  { key: 'summary', label: 'Summary' },
+  { key: 'differential_diagnosis', label: 'Differential Diagnosis' },
+  { key: 'diagnosis', label: 'Diagnosis' },
+  { key: 'management_plan', label: 'Management Plan' },
+  { key: 'teaching_points', label: 'Teaching Points' },
 ]
 
 function CaseForm({ specialty, setSpecialty, difficulty, setDifficulty, focusArea, setFocusArea, onGenerate, isLoading }) {
@@ -74,22 +83,6 @@ function CaseForm({ specialty, setSpecialty, difficulty, setDifficulty, focusAre
   )
 }
 
-function DiagnosisReveal({ diagnosis, revealed, onReveal }) {
-  return (
-    <div className="case-section diagnosis-section">
-      <span className="section-label">
-        {revealed ? 'Diagnosis' : 'Diagnosis — click to reveal'}
-      </span>
-      <p
-        className={`diagnosis-text${revealed ? ' diagnosis-text--revealed' : ''}`}
-        onClick={() => !revealed && onReveal()}
-      >
-        {diagnosis}
-      </p>
-    </div>
-  )
-}
-
 function renderObjectList(obj) {
   return (
     <ul className="section-list">
@@ -105,40 +98,59 @@ function renderObjectList(obj) {
   )
 }
 
-function renderSectionContent(key, value) {
-  if (key === 'teaching_points' && Array.isArray(value)) {
+function renderParagraphs(text) {
+  return (
+    <div className="section-content">
+      {String(text)
+        .split(/\n{2,}/)
+        .map(para => para.trim())
+        .filter(Boolean)
+        .map((para, i) => (
+          <p key={i} className="section-paragraph"><MD>{para}</MD></p>
+        ))}
+    </div>
+  )
+}
+
+function renderSectionContent(value) {
+  if (Array.isArray(value)) {
     return (
       <ul className="section-list">
         {value.map((item, i) => <li key={i}><MD>{item}</MD></li>)}
       </ul>
     )
   }
-  if ((key === 'vital_signs' || key === 'physical_examination' || key === 'diagnostic_workup') && value !== null && typeof value === 'object' && !Array.isArray(value)) {
+  if (value !== null && typeof value === 'object') {
     return renderObjectList(value)
   }
-  return (
-    <p className="section-content">
-      {typeof value === 'string' ? <MD>{value}</MD> : JSON.stringify(value, null, 2)}
-    </p>
-  )
+  if (typeof value === 'string') {
+    return renderParagraphs(value)
+  }
+  return <p className="section-content">{JSON.stringify(value, null, 2)}</p>
 }
 
-function CaseDisplay({ clinicalCase, revealed, onReveal }) {
+function sectionModifier(key) {
+  if (key === 'chief_complaint') return ' case-section--chief-complaint'
+  if (key === 'diagnosis') return ' diagnosis-section'
+  return ''
+}
+
+function CaseDisplay({ clinicalCase }) {
   return (
     <div className="case-display">
+      <div className="case-toolbar">
+        <button className="download-btn" onClick={() => window.print()}>
+          ⬇ Download PDF
+        </button>
+      </div>
       {CASE_SECTIONS.map(({ key, label }) => (
-        <div key={key} className={`case-section${key === 'chief_complaint' ? ' case-section--chief-complaint' : ''}`}>
-          <span className="section-label">{label}</span>
-          {renderSectionContent(key, clinicalCase[key])}
-        </div>
+        clinicalCase[key] == null ? null : (
+          <div key={key} className={`case-section${sectionModifier(key)}`}>
+            <span className="section-label">{label}</span>
+            {renderSectionContent(clinicalCase[key])}
+          </div>
+        )
       ))}
-      <DiagnosisReveal diagnosis={clinicalCase.diagnosis} revealed={revealed} onReveal={onReveal} />
-      {revealed && (
-        <div className="case-section">
-          <span className="section-label">Teaching Points</span>
-          {renderSectionContent('teaching_points', clinicalCase.teaching_points)}
-        </div>
-      )}
     </div>
   )
 }
@@ -150,13 +162,11 @@ function App() {
   const [clinicalCase, setClinicalCase] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [revealed, setRevealed] = useState(false)
 
   async function handleGenerate() {
     setIsLoading(true)
     setError(null)
     setClinicalCase(null)
-    setRevealed(false)
     try {
       const result = await generateClinicalCase({ specialty, difficulty, focusArea })
       setClinicalCase(result)
@@ -189,7 +199,7 @@ function App() {
           isLoading={isLoading}
         />
         {error && <div className="error-card">{error}</div>}
-        {clinicalCase && <CaseDisplay clinicalCase={clinicalCase} revealed={revealed} onReveal={() => setRevealed(true)} />}
+        {clinicalCase && <CaseDisplay clinicalCase={clinicalCase} />}
       </main>
     </div>
   )
